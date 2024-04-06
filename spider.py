@@ -2,45 +2,48 @@ import requests
 import js2py
 from bs4 import BeautifulSoup
 
-url = "https://www.klook.cn/zh-CN/experiences/list/day-trips/cate10/?spm=TNA_Vertical.CategorySeeAll&clickId=0095a0d6bd"
-headers = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-    "Accept-Encoding": "gzip, deflate, br, zstd",
-    "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-    "Cache-Control": "max-age=0",
-    "Connection": "keep-alive",
-    "Cookie": "kepler_id=2ee72aa0-c123-4d21-9690-93980abf9bf0; klk_currency=CNY; klk_rdc=CN; referring_domain_channel=seo; _gcl_au=1.1.710510048.1711958811; _gid=GA1.2.184826712.1711958811; KOUNT_SESSION_ID=624B2E1C7C8F5DD22F06DAE0D927AA45; clientside-cookie=bd8b03b3568280c4cc86cbfc41a10f7c94d8a9c87377a8fae63109da76f333e55c6b31159e8ddfdb95e4fbca3886a4e218793c19d211dd8f02d4422b18499567a227d9a6e547e99a9e9cdcdee0602a98b7c4e6c1d4e4b4097369c22dd5d9b087fa7eefe92769083543b22d3e8e35c3d089a545ae6be0dc10afdb90abaca733b6bc19b49936725fdd7788045953979677b5bd1e679796b5714d785e; retina_support=1; CSRF-Token=MTcxMTk1ODgzOHxndVZiWkZsZUJOOGZtWDN0Z2xJcHZ5NDY5YjZZX0dKZnw4f4mDIo_hYFymmzB0GfvD4uBtJ5IKqFFS6P07oTUbjA==; CSRF-Token-Valid=valid; device_id_new=DpqwU4zEdN00500000000000005B8Gc9qXKS00891467765WpYWiKzBGXnBSJqzXqXBix7RX3az8002q7zBvelero00000qZkTE0000024jgxgozwGEC4FlSABmQ:40::2ad4c614aba94d62; tag_fok=1711958838000; persisted_source=www.google.com; k_tff_ch=google_seo; tr_update_tt=1712037877633; campaign_tag=klc_l1%3DSEO; traffic_retain=true; _ga_V8S4KC8ZXR=GS1.1.1712037878.4.1.1712038295.35.0.0; forterToken=16a21255148344dfb519026c7535e27f_1712038295291__UDF43-m4_21ck_; datadome=w31FW6fSnBPAShKTBctRpQr0twPdFLEMr0ploJl_zdzj2g45ymjpc1ff_wQKNxdhYqt25H1gqmiEH_49iLchMBC79W6WZCSmYSJrEcNqxnmpQpyR1w2pfSZSbw6Wh5ph; _ga_FW3CMDM313=GS1.1.1712041069.6.0.1712041069.0.0.0; _ga=GA1.2.1562821377.1711958811; ssxmod_itna=iqmxcDB70QDQ=4BcDeTm4Uhb8dexYvPqIY44fpdD/AQ+DnqD=GFDK40EYSxmKuK5GGOphtIQD0IK6KQGoxetHop03IV0ex0aDbqGkdYer4GG0xBYDQxAYDGDDPCDj4ibDYfzODjBItzZCq=D3qDwDB=DmqG2KWiDA4DjCw+KFR6miqDh+LxD0Mh5A0ItDYPyULLe5CrDAkhMAG4yD0tDIqGXQDyKCqDBR1yKSMt7p6naiM0qxBQD7u2S/8rDCoUVRLjb=OGaY7GY/ofYQApPADxiz8hmDyvxl7x2jA4QFDe3b8eiUY42SXxDDf3OxOO4xD==; ssxmod_itna2=iqmxcDB70QDQ=4BcDeTm4Uhb8dexYvPqIY44fPG9WxjExGN30hKGaioF02nQ8DxwG=D6Q09D7yYUdPj1K6rrF21YzFlBaqPkOdYH+7jODK++vXUEB832ACmYCk6mx1=KOqpT2F/gR=m8Mrrsf6eYnoTsep7iLrnOV6vw07WY/r5=zAm=yQPTb=9YFUFxB7EGbPqrq=FO6byHEbKbnfc69CajBRL+23Y6Fa3tSbMicovWKLC0s8l=YyEuPsc=MemRMmCsUbl0HuCsGku919WQNHHn/cOsg2tPLHllmNChoR5t=0iOzo5H94kbWzUurCqany4SmCUr97W8APrl4j+u7RFCBb99utRTW+4j9T0WFW9P5O9ouD2DIpGRrGPWSAp4uxoGpRvkmR=Ou=UbCtTdYD4BHSlmtkWgBR4Dcbpbh3HE0DHlbdbx4mHvUKQ/HK8H7bxWwqP4YQeLQwqxP4N=9ztq4yuLbYaadrYdwK9zYMbtb1GR7U4W+BH1YQ4T+QG3D0760qdlEWBq8mdqBrrdPo8DqBQqAPNfkHKo89NXEvq7Qe0ns4x7GTN6PY75eAP80EGBinrABAfHkEd4yvr9gnDVo80/+iGQcAxYlE41D2tAwrzGAQgle=0dvDelzxt73=vqONey0DWDDLxD2bvl7GIkhDD=; klk_i_sn=9728672253..1712042398211; tfstk=fxUrDG0_-aQy9YEn3xgEbiuSxm38FVB1qyMItWVnNYDkPU93082mFYw7tvrEn7wIqTVL3eP8tuGQV_EELRNKE2ZSFX24BJRSqviC8WVnHz1-d_30ix0ovuMIFvuU9R5fCN__w73KrO615Fluvd3otX0nt6DmOfywqUm_w73pM4ilmnPJY4fFbym3Kqmm9X3nZb0noslstv0nEDvDmfDmK203Kxxm1XdkreYkoqD1iJ2JuxolFdzBO6bXipHaZx8aMrclXf7tFeY3ubP4_7x2-e4qa0UQOPtWD0Z36cU7Ow8xP5rmofNRzEugZfyShRbMuqVbiJiTD9LsP-zEbzmJtFg7wXoi-mRH-SuuVc4-SNvqMoV7xzeyTec8PPiEBm5HJDg05cqgUBCTi4c3pcUCBUHut5UTfV7XqVV4xRrF4DvKiVmbJuJHY0cxgA1Vi3HJtQclrwpHvHnVDjk161Kpv0cxgA1VgHKK0PhqC1CO.",
-    "Host": "www.klook.cn",
-    "If-None-Match": 'W/"2807b-oKsWGRCQXYKfhhgrMPGiD5Drmew"',
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-    "Sec-Fetch-User": "?1",
-    "Upgrade-Insecure-Requests": "1",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-    "sec-ch-device-memory": "8",
-    "sec-ch-ua": '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
-    "sec-ch-ua-arch": '"x86"',
-    "sec-ch-ua-full-version-list": '"Google Chrome";v="123.0.6312.86", "Not:A-Brand";v="8.0.0.0", "Chromium";v="123.0.6312.86"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-model": "",
-    "sec-ch-ua-platform": "Windows"
-    # "Host":"www.klook.cn",
-    # "Cookie": "kepler_id=2ee72aa0-c123-4d21-9690-93980abf9bf0; klk_currency=CNY; klk_rdc=CN; referring_domain_channel=seo; _gcl_au=1.1.710510048.1711958811; _gid=GA1.2.184826712.1711958811; KOUNT_SESSION_ID=624B2E1C7C8F5DD22F06DAE0D927AA45; clientside-cookie=bd8b03b3568280c4cc86cbfc41a10f7c94d8a9c87377a8fae63109da76f333e55c6b31159e8ddfdb95e4fbca3886a4e218793c19d211dd8f02d4422b18499567a227d9a6e547e99a9e9cdcdee0602a98b7c4e6c1d4e4b4097369c22dd5d9b087fa7eefe92769083543b22d3e8e35c3d089a545ae6be0dc10afdb90abaca733b6bc19b49936725fdd7788045953979677b5bd1e679796b5714d785e; retina_support=1; CSRF-Token=MTcxMTk1ODgzOHxndVZiWkZsZUJOOGZtWDN0Z2xJcHZ5NDY5YjZZX0dKZnw4f4mDIo_hYFymmzB0GfvD4uBtJ5IKqFFS6P07oTUbjA==; CSRF-Token-Valid=valid; device_id_new=DpqwU4zEdN00500000000000005B8Gc9qXKS00891467765WpYWiKzBGXnBSJqzXqXBix7RX3az8002q7zBvelero00000qZkTE0000024jgxgozwGEC4FlSABmQ:40::2ad4c614aba94d62; tag_fok=1711958838000; acw_tc=2f6a1fa017120378886314637e3ef25aa21f94c506fcc1639380ddb9986797; persisted_source=www.google.com; k_tff_ch=google_seo; acw_sc__v2=660ba0027596808a058323525918492a11d54c7a; tr_update_tt=1712037877633; campaign_tag=klc_l1%3DSEO; KSID=MQ.1090cdd0502f4e9742c7ee3b642c3981; traffic_retain=true; _dc_gtm_UA-86696233-1=1; klk_ga_sn=7433769431..1712038283428; datadome=~LkiiJsU2qKKBg1QEAkPC9HSm4VKWKKPIAwp01Kn9pLNN6jfFA36hOhbeXNH_ygweYkSOJ4T_uYBvxHI3OSh4YnuQFEeLP7wlWSV~C9m8671Hqfjnl6XTRuFDcdjJx1l; _ga_FW3CMDM313=GS1.1.1712037878.5.1.1712038283.0.0.0; _ga=GA1.1.1562821377.1711958811; _ga_V8S4KC8ZXR=GS1.1.1712037878.4.1.1712038284.46.0.0; klk_i_sn=9728672253..1712038286669; forterToken=16a21255148344dfb519026c7535e27f_1712038284627__UDF43-m4_21ck_; ssxmod_itna=eq0xgDyD9GDQFqWq0dD=wgD=DRnDui0rlZO0p=Ix0yDPGzDAxn40iDt==HrnQg2obq4YFoluXY38nfbPIwCU+iPtL7ST2eDHxY=DUZxPhoD4SKGwD0eG+DD4DWUx03DoxGASpx0+kSBcu=nDAQDQ4GyDitDKkixxG3D0R6x87oyWD=De3UKDDXK46hxfxeDb26MS32xHeDS/BUxK0=DjqGgDBLYR6xyDDt1g6h/Ud9O=1PntliDtqD9CjUXFeDH+MXl3unsf7Ptf74sWo+F/ADqzSqP4Xv34Eet0B4eQODP/Y4qRiC/kDDAfeKi2DeD=; ssxmod_itna2=eq0xgDyD9GDQFqWq0dD=wgD=DRnDui0rlZO0p=4nISR5DsdeDLWahQNCaZ4nRiUOrl2OFwOKlxeY4+xgnlv2O0m4nwREljIL2GHDoC7I4ie+=Lyv8GdfIldtU2EY/lCsgDjv4f2wmIxuCK5Zcq=vZ2rVDWbpeYksWr8qe9dyiotvPhkqD7briTNzYndppgGXe2mVAEf1+qA1tgi7/Tsv1xpLpM+atTTs7BD5gB05av0Ehq2XlxGVCeNbIK+tkALNXCf3yq1tXFNsz18DKQnDIB+TF55jFnOzIFr=oBAYZ+ADpQpCNPhVqQTr5XBY5xGbrt4lYqAt/4tDgYUkhWEx4QhCYtudaPxOtkwgfsofsxwm8W32kw=o+BkNMLGTO+Nj4q2Gano5o31QaXgYqE5Tf7/YAlei46vpbCTooD13rhAvgzzWflC=5Qd5ppVCvr1v=ev0hfrppw=GbOfjC+v=jCPIHaj7=jm=U1ZsfDDwrDP7GB2iqlxIcGKDXZKXplyDN7RlxDjKDeLx4D==; tfstk=fYFEIRcbZ6CeyDeobcGr3OlQYllKFjIbx7iSrz4oRDmHOBtuQkqiADZQr0yrjyZSKM48bQzLrJg7dwer4oa-xuzRJ4muquo7dO1bJyh-ZiZPGsaL3r0S-ukHKcxgW4uHt_bbE4c-Zis6CQDdgbEjTNoVYAbZP4iorumnS1mtz2AuqDDMjquxZ0qoZNkir20HE4D3SF0-wdquvCoZKMt4NBKDhjMEmPWvZQukGvmmmcAlmSuFDm4nbQASv4US5PzCYIUs9SZqlk1MTozY6lugm_SZwleuq4rGM3GLhkFxQk6DsPcEXxV_A_sQ77oEnWDwzaaZO4qoURI2G2lQQxPUpaKg-oiUnXUWuMaZ3RkxSAYyKXwbl7H0t6-xfx3zAcZciCliEgoH2VcmC7eeqLknWVof7NvKvUYn-6fJqLp-QO3ZcZQveLHnWVof7NJJeAPx7m_Ak",
-    # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-}
+class Spider:
+    def __init__(self):
+        self.url = "https://www.klook.cn/zh-CN/experiences/list/day-trips/cate10/?spm=TNA_Vertical.CategorySeeAll&clickId=0095a0d6bd"
+        self.headers = {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Cache-Control": "max-age=0",
+            "Connection": "keep-alive",
+            "Cookie": "acw_tc=2f6a1fa617124178421584507e1da37e6343e5f7ea783e1a96e86630ed1019; klk_currency=CNY; kepler_id=910f6955-f6f0-4db0-8ea9-4aa5fe8dd3ed; klk_rdc=CN; acw_sc__v2=66116c340cb291df747ed8e3a0411305dc6f0e6d; _gcl_au=1.1.1333879254.1712417845; _gid=GA1.2.1263568831.1712417846; JSESSIONID=035840EEB1C32DC426CB044A0FDFF654; KOUNT_SESSION_ID=035840EEB1C32DC426CB044A0FDFF654; clientside-cookie=264c5abfa2757642f9c4c4ea233db7aa5b8c5356c3fcc001fb8a72970c03030ac27f04e4db75ddca62970136b6d512a2539bb84994560ec155211565faf7e00a808b0e6c097115d4a0a6d66acfde57327770b47cdb857fdd2d0c311ce148663ba2268f25dd55abd787d43b54c2bff43f9dcd59d1c42994db39bb52a013e0bbe54fbec2c3cd0788291716e40fdd2c49aff12ec571942d3a172f046b; KSID=MQ.1d15028c20ec4d377654af560d1dd727; _ga=GA1.1.252168503.1712417845; _ga_V8S4KC8ZXR=GS1.1.1712417845.1.1.1712417884.21.0.0; forterToken=8c80616d39494b03b3f0d263c8a56e9f_1712417886271__UDF43-m4_21ck_; datadome=nHG3QSAeeS0cBvb85iMSwAlsOfLMemfBBnbUjHyK0NnrCwRQ5GiQO9kEsOX_7_YvPYOwzSt0dG5IpMLlAwaFBLYK~6nS7AEUu7ohmI4fnfXIvLLhIr5rq625e5prNRoT; klk_ga_sn=2931335226..1712417906621; _ga_FW3CMDM313=GS1.1.1712417844.1.1.1712417907.0.0.0; klk_i_sn=2514141974..1712417917490; tfstk=fRfIY2Y42DmCfe76qpUNlnInj3A7NMNq24TRoahEyBdK20QvbBRyTBr5CgIwv45PJhXMXiiy4yvzNbs1q9le9gPW2ZxGTU8FL3h5yhfU-3zH6ALDjg9u-3-JVg7RLPP4gwbHZQC70SP4b5CzEMGpvQUJWU8-QPGtJwbHZVcsqnoA-Y9PXJ5Jegd9BUYXweLJwfU6zUDpwHp-XALvX3dJwgd96U8q93h-9CKtNguXPJthRubA-BJIAubefbhjoe9K0wDrGj1XRp1RWh9yU1TBdnJwWled9G7RT6vgBAOl7ts5eiEZLHBXlG9VdoGCcMYRXFIUzYY1FaCDtp3jGN9WAOCpC4hRWCxpUTsQAvxdLG9DWd37iFS2XwfdCzmOJi-B9FpaMr_9eO5Hn6rtOIBc8BWRDlkevtTR43c2cmNoFV9mNFt45PMoU03mh09G6DZ9pFYBQPasvTvpSFtb5PMoHpLMRhU_5DB1.; ssxmod_itna=eqjxuDy7D=DtqAKGHLhCGKDOfAFu7DDKrfjdD/+mDnqD=GFDK40oo7vb=r=Y2KeAlOB4GC9ESvYa5HFCirWKmzr4GLDmKDyQAh+eDxrq0rD74irDDxD3DbbdDSDWKD9D0bSyuEXKGWDbo=Di4D+bkQDmqG0DDtH04G2D7UnG05r7TeD0web3AGDoedepqbBQG0xKY=DjTbD/4+H2mr7paelYeaaVqp2DB6sxBQSmdN6GeDH7TXS/T4tihqonExoGipi8AAPe2D4F0Y=K0DzYNltQBEqGAYfLR4rDDfrj7mdeD===; ssxmod_itna2=eqjxuDy7D=DtqAKGHLhCGKDOfAFu7DDKrfQG9tcDRhGDGXP4rGaQGFEcY3Gzx8rqe8qKiexiQnR=7abI8tInYx+=D+0InsqHj1AxLDZKPq00pXKmABshLO/HaBfux5oH8n5LX1BcqAFWMhiH=rnt0WK+YZKr0QmkbcD=bKBdrZwrPlbrWRa=iGexzPWt870doWOxe=ivrWgfdm8GgBF7KBe4pSaP0FfbtA8aVmpKHamjeguhb+3jaFKQ3qB41FwIegnYjU1vpKpK+e=CWva=8ArvAdIKKp/SqBBp9oaF8uOmKomfZxZGYRcAnzjyp8vTA5g/qVzaIAevn9NlbC3a7UnePpjFiA0xQCTIW9cBb28cDKOGfmHlhI/WF7EbIAtbbmRbfnW2jOb0HF/BoLWaFvI+WaWqe4Fa+7yRu=VWW8SRefSfWF84sn9YqI=Ufr7g/IEQpn5VfiOY=0wFOEFP3ONu4UcKf340q/A4i3IBUMVBSOcL9/AOXODuSVUolAxQMqzQ+9eShrEy/7YEh8tQdqQiIQetxDKd4aG8ciKN6ksIT+mDmKt+Ba1kn9An3AcKgch7cRdWy0K+Afhiz1ayKGyWtOcDxMD9a2DeixrMB3ym+B34yKWX4ciHLBahAS+Ukl4DLxD2ehDD",
+            "Host": "www.klook.cn",
+            "If-None-Match": 'W/"2807b-oKsWGRCQXYKfhhgrMPGiD5Drmew"',
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+            "sec-ch-device-memory": "8",
+            "sec-ch-ua": '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
+            "sec-ch-ua-arch": '"x86"',
+            "sec-ch-ua-full-version-list": '"Google Chrome";v="123.0.6312.86", "Not:A-Brand";v="8.0.0.0", "Chromium";v="123.0.6312.86"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-model": "",
+            "sec-ch-ua-platform": "Windows"
+        }
 
-res = requests.get(url=url, headers=headers )
-print(res)
-soup = BeautifulSoup(res.text, 'html.parser')
-search_script = soup.find_all('script', attrs={'crossorigin': True})
+    def Obtain(self):
+        res = requests.get(url=self.url, headers=self.headers )
+        soup = BeautifulSoup(res.text, 'html.parser')
+        search_script = soup.find_all('script', attrs={'crossorigin': True})
+        print(search_script[3])
+        print(search_script[3].text)
+
+        context = js2py.EvalJs()
+        context.execute(search_script[3].text)
+
+        # state  experience  searchResultActivities
+        print(context.window.__KLOOK__)
+        print(context.window.__KLOOK__.to_dict()["state"]["experience"]["searchResultActivities"])
+        print(type(context.window.__KLOOK__.to_dict()))
 
 
-context = js2py.EvalJs()
-context.execute(search_script[3].text)
-
-# state  experience  searchResultActivities
-print(context.window.__KLOOK__.to_dict()["state"]["experience"]["searchResultActivities"])
-print(type(context.window.__KLOOK__.to_dict()))
-
-
+s = Spider()
+s.Obtain()
