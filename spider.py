@@ -33,14 +33,11 @@ class Spider:
         res = requests.get(url=self.url, headers=self.headers )
         soup = BeautifulSoup(res.text, 'html.parser')
         search_script = soup.find_all('script', attrs={'crossorigin': True})
-        print(search_script[3])
-        print(search_script[3].text)
 
         context = js2py.EvalJs()
         context.execute(search_script[3].text)
 
         # state  experience  searchResultActivities
-        print(context.window.__KLOOK__)
         print(context.window.__KLOOK__.to_dict()["state"]["experience"]["searchResultActivities"])
         print(type(context.window.__KLOOK__.to_dict()))
 
