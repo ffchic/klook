@@ -1,4 +1,5 @@
 import pymysql
+import redis
 
 
 """
@@ -40,6 +41,10 @@ port = 3306
 user = "root"
 password = "123456"
 database = "klook"
+
+redis_host = "127.0.0.1"
+redis_port = 6379
+redis_db = 0
 
 class Words:
     def __init__(self):
@@ -171,3 +176,18 @@ class ScenicSpots:
 
         # 提交事务
         self.conn.commit()
+
+
+class RedisConn:
+    def __init__(self):
+        self.redis_conn = redis.Redis(host='127.0.0.1', port=6379, db=0)
+
+    def __del__(self):
+        # 关闭 Redis 连接
+        self.redis_conn.close()
+    def add(self,key,value):
+        self.redis_conn.incr(key, value)
+
+
+
+

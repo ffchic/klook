@@ -7,7 +7,7 @@ import logging
 import js2py
 from snownlp import SnowNLP
 from bs4 import BeautifulSoup
-from py_sql import Words, Comments, ScenicSpots
+from py_sql import Words, Comments, ScenicSpots, RedisConn
 """
 1.实时监测 正负评论数，基本能反应客路旅行在一整年的用户评价信息。我们选取了2023年一整年的正负评论数，画出2023年的正负评论数折线图，
 2.1 用户评价数据，提取出所有的标题，将它转化为字符串形式，并且去掉所有的空格，导入新的停用词，然后用精确模式对其进行结巴分词，对分词后的文本进行词频统计，输出出现次数top20的词语，词云图
@@ -26,7 +26,7 @@ class Spider:
         self.url = "https://www.klook.cn/zh-CN/experiences/list/cruises/cate164/?not_cal_destination=1&start={}&is_clear_flag=1&is_manual_flag=1"
         self.url = "https://www.klook.cn/zh-CN/experiences/list/cruises/cate164/?not_cal_destination=1&start={}&is_clear_flag=1&is_manual_flag=1"
         self.comment_limit = 100
-        self.comment_url = "https://www.klook.cn/v1/experiencesrv/activity/component_service/activity_reviews_list?activity_id={}&page={}&limit={}&star_num=&lang=&sort_type=0&only_image=false&sub_category_id=413&k_lang=zh_CN&k_currency=CNY&preview=0"
+        self.comment_url = "https://www.klook.cn/v1/experiencesrv/activity/component_service/activity_reviews_list?activity_id={}&page=1&limit={}&star_num={}&lang=&sort_type=0&only_image=false&sub_category_id=413&k_lang=zh_CN&k_currency=CNY&preview=0"
         self.headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
             "Accept-Encoding": "gzip, deflate, br, zstd",
@@ -66,12 +66,14 @@ class Spider:
 
     def get_comment(self, activity_id):
         # 获取评论数据
-        res = requests.get(url=self.comment_url.format(activity_id, 1, self.comment_limit), headers=self.headers)
+        res = requests.get(url=self.comment_url.format(activity_id,  self.comment_limit,1), headers=self.headers)
         data = res.json()
         if not data.get("result",{}):
             print("        worring | (1)Comment data is invalid...{}".format(activity_id))
             return
-        total = data.get("result",{}).get("total")
+        total = data.get("result",{}).get("show_total")
+        if not total:
+            total = data.get("result", {}).get("total")
         if not total:
             print("        worring | (1)Comment data is invalid...{}".format(activity_id))
             return
@@ -80,7 +82,7 @@ class Spider:
         for page in range(1, total_page+1):
             if page < self.activity_page.get(activity_id,0):
                 continue
-            res = requests.get(url=self.comment_url.format(activity_id, page, self.comment_limit), headers=self.headers)
+            res = requests.get(url=self.comment_url.format(activity_id, self.comment_limit, page), headers=self.headers)
             print("        [{}/{} | COMMENT DATA STATUS CODE:[{}]]start crawl {}".format(page, total_page, res.status_code, activity_id))
             if res.status_code != 200:
                 print("        [ERROR] COMMENT DATA  Status Code ERROR, start chrome for cookies ...{}".format(activity_id))
@@ -118,8 +120,24 @@ class Spider:
                     f.write(str(activity_id) + "-" + str(page) + "\n")
 
     def fenci_sql(self, fenci_items):
+        del_ci = ["走", "请", "经理", "开", "讲", "这家", "只能", "写", "几个", "里", "女", "告诉", "晚上", "更", "事", "回来", "住", "一家", "事情"]
+        fenci_dict = {}
+        r = RedisConn()
+        for i in fenci_items:
+            if i in del_ci:
+                continue
+            if i in fenci_dict.keys():
+                fenci_dict[i] += 1
+            else:
+                fenci_dict[i] = 1
+        for word,num in fenci_dict.items():
+            r.add(word, num)
+    def fenci_sql(self, fenci_items):
+        del_ci = ["走", "请", "经理", "开", "讲", "这家", "只能", "写", "几个", "里", "女", "告诉", "晚上", "更", "事", "回来", "住", "一家", "事情"]
         fenci_dict = {}
         for i in fenci_items:
+            if i in del_ci:
+                continue
             if i in fenci_dict.keys():
                 fenci_dict[i] += 1
             else:
